@@ -1,9 +1,10 @@
 import { MessageText } from '../atoms/MessageText';
 import { IconButton } from '../atoms/IconButton';
+import type { Message } from '../organisms/ChatMessages';
 
 interface MessageBubbleProps {
   content: string;
-  role: 'user' | 'assistant';
+  role: Message['role'];
   isCorrection?: boolean;
   onSpeak?: () => void;
   isSpeaking?: boolean;
@@ -21,7 +22,7 @@ export function MessageBubble({
     assistant: isCorrection 
       ? 'bg-yellow-50 border-l-4 border-yellow-400' 
       : 'bg-white',
-  };
+  } as const;
 
   return (
     <div className={`p-4 rounded-lg max-w-[80%] shadow ${bubbleClasses[role]}`}>

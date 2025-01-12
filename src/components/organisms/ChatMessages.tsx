@@ -1,6 +1,6 @@
 import { MessageBubble } from '../molecules/MessageBubble';
 
-interface Message {
+export interface Message {
   role: 'user' | 'assistant';
   content: string;
 }

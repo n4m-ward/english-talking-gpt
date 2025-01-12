@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { ChatMessages } from "@/components/organisms/ChatMessages";
 import { MessageInput } from "@/components/molecules/MessageInput";
+import type { SpeechRecognition, SpeechRecognitionEvent } from "@/types/speech";
 
 interface ChatData {
   id: string;
@@ -18,6 +19,12 @@ interface ChatData {
   }>;
 }
 
+declare global {
+  interface Window {
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+
 export default function ChatPage() {
   const params = useParams();
   const [chatData, setChatData] = useState<ChatData | null>(null);
@@ -25,7 +32,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [recognition, setRecognition] = useState<any>(null);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
 
   useEffect(() => {
     const chats = JSON.parse(localStorage.getItem("chats") || "[]");
@@ -40,12 +47,11 @@ export default function ChatPage() {
 
     // Initialize speech recognition
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
+      const recognition = new window.webkitSpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         setNewMessage(transcript);
         setIsRecording(false);

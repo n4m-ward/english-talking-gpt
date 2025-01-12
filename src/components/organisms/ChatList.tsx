@@ -1,4 +1,5 @@
 import { ChatCard } from '../molecules/ChatCard';
+import type { Message } from './ChatMessages';
 
 interface Chat {
   id: string;
@@ -7,10 +8,7 @@ interface Chat {
     linguagem: string;
     tipoDaConversa: string;
   };
-  messages: Array<{
-    role: string;
-    content: string;
-  }>;
+  messages: Message[];
 }
 
 interface ChatListProps {
