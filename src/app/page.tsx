@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Card } from "@/components/atoms/Card";
+import { NewChatForm } from "@/components/molecules/NewChatForm";
+import { ChatList } from "@/components/organisms/ChatList";
 
 const AVAILABLE_LANGUAGES = {
   'português': 'pt-BR',
@@ -39,6 +42,10 @@ export default function Home() {
     setPreviousChats(chats);
   }, []);
 
+  const handleFormDataChange = (newData: Partial<typeof formData>) => {
+    setFormData(prev => ({ ...prev, ...newData }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -62,6 +69,10 @@ export default function Home() {
     setPreviousChats(updatedChats);
   };
 
+  const handleContinueChat = (chatId: string) => {
+    router.push(`/chat/${chatId}`);
+  };
+
   const formatDate = (timestamp: string) => {
     return new Date(parseInt(timestamp)).toLocaleString('pt-BR', {
       day: '2-digit',
@@ -75,108 +86,28 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* Nova Conversa */}
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold mb-6 text-center text-black">Nova Conversa</h1>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-black mb-1">
-                Nível de Inglês
-              </label>
-              <select
-                value={formData.nivelDeIngles}
-                onChange={(e) => setFormData({ ...formData, nivelDeIngles: e.target.value })}
-                className="w-full p-2 border rounded-md text-black"
-                required
-              >
-                <option value="iniciante">Iniciante</option>
-                <option value="intermediario">Intermediário</option>
-                <option value="avancado">Avançado</option>
-              </select>
-            </div>
+        <Card>
+          <h1 className="text-2xl font-bold mb-6 text-center text-black">
+            Nova Conversa
+          </h1>
+          <NewChatForm
+            formData={formData}
+            onFormDataChange={handleFormDataChange}
+            onSubmit={handleSubmit}
+          />
+        </Card>
 
-            <div>
-              <label className="block text-sm font-medium text-black mb-1">
-                Linguagem
-              </label>
-              <select
-                value={formData.linguagem}
-                onChange={(e) => setFormData({ ...formData, linguagem: e.target.value })}
-                className="w-full p-2 border rounded-md text-black"
-                required
-              >
-                {Object.keys(AVAILABLE_LANGUAGES).map((lang) => (
-                  <option key={lang} value={lang}>
-                    {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-black mb-1">
-                Tipo da Conversa
-              </label>
-              <input
-                type="text"
-                value={formData.tipoDaConversa}
-                onChange={(e) => setFormData({ ...formData, tipoDaConversa: e.target.value })}
-                className="w-full p-2 border rounded-md text-black"
-                placeholder="Ex: Viagens, Trabalho, Hobbies"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Iniciar Conversa
-            </button>
-          </form>
-        </div>
-
-        {/* Lista de Conversas Anteriores */}
         {previousChats.length > 0 && (
-          <div className="bg-white p-8 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-6 text-black">Conversas Anteriores</h2>
-            <div className="space-y-4">
-              {previousChats.slice().reverse().map((chat) => (
-                <div key={chat.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <h3 className="font-medium text-black">
-                        {chat.settings.tipoDaConversa}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {chat.settings.linguagem.charAt(0).toUpperCase() + chat.settings.linguagem.slice(1)} • 
-                        Nível {chat.settings.nivelDeIngles} •
-                        {formatDate(chat.id)}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {chat.messages.length} mensagens
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => router.push(`/chat/${chat.id}`)}
-                        className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                      >
-                        Continuar
-                      </button>
-                      <button
-                        onClick={() => handleDeleteChat(chat.id)}
-                        className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <Card>
+            <h2 className="text-xl font-bold mb-6 text-black">
+              Conversas Anteriores
+            </h2>
+            <ChatList
+              chats={previousChats}
+              onContinueChat={handleContinueChat}
+              onDeleteChat={handleDeleteChat}
+            />
+          </Card>
         )}
       </div>
     </div>
